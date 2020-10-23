@@ -5,7 +5,7 @@ import { User } from '../../models/User';
 @Injectable({
   providedIn: 'root',
 })
-export class UserServiceService {
+export class UserService {
   constructor(private http: HttpClient) {}
   USER_INFO_URL: string = 'https://localhost:4200/assets/user.json';
   getUserInfo = () => {
