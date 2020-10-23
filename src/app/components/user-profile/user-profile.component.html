@@ -21,6 +21,6 @@
       <p>{{ user.bio }}</p>
     </div>
     <h3>I live here</h3>
-    <app-user-map></app-user-map>
+    <app-user-map [coordinates]="user.address['coordinates']"></app-user-map>
   </div>
 </div>
