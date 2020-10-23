@@ -1,0 +1,12 @@
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  border-bottom: 1px solid lightgrey;
+  h1 {
+    font-weight: bold;
+    margin: 0px;
+    padding: 15px 0px;
+  }
+}
