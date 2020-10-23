@@ -8,9 +8,10 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { UserMapComponent } from './components/user-map/user-map.component';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, UserProfileComponent, UserMapComponent],
+  declarations: [AppComponent, HeaderComponent, UserProfileComponent, UserMapComponent, HomeComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, CommonModule],
   providers: [],
   bootstrap: [AppComponent],
