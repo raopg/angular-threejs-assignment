@@ -1,4 +1,29 @@
 .user-profile-container {
   display: flex;
   flex-direction: row;
+  width: 100%;
+  margin-top: 40px;
+}
+
+.user-details {
+  padding: 20px;
+  width: 40%;
+  margin-left: 40px;
+  border-right: 1px solid lightgrey;
+
+  img {
+    width: 150px;
+    height: 150px;
+    background-size: cover;
+    border-radius: 50%;
+  }
+
+  h3 {
+    font-style: italic;
+  }
+}
+.user-bio-location {
+  padding: 20px;
+  width: 40%;
+  margin-left: 40px;
 }
