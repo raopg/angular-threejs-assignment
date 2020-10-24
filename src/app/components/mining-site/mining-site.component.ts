@@ -18,7 +18,7 @@ export class MiningSiteComponent implements OnInit {
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(
-      75,
+      40,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
@@ -28,7 +28,7 @@ export class MiningSiteComponent implements OnInit {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    camera.position.z = 200;
+    camera.position.z = 350;
 
     // Create OrbitControls
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -56,6 +56,8 @@ export class MiningSiteComponent implements OnInit {
     scene.add(fillLight);
     scene.add(backLight);
 
+    // TODO: Load textures
+
     // Load material and obj
     const mtlLoader = new MTLLoader();
     mtlLoader.setPath('../../../assets/threejs-assets/');
@@ -65,7 +67,14 @@ export class MiningSiteComponent implements OnInit {
       objLoader.setMaterials(materials);
       objLoader.setPath('../../../assets/threejs-assets/');
       objLoader.load('geomodel.obj', (object) => {
-        object.position.y -= 60;
+        // Retrieve the mesh
+        const mesh = object.children[0];
+        // @ts-ignore-next-line
+        //Create geometry object
+        const geo = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
+
+        console.log(geo.faces);
+
         scene.add(object);
       });
     });
