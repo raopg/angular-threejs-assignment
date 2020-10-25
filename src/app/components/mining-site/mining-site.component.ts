@@ -76,43 +76,77 @@ export class MiningSiteComponent implements OnInit {
           object.children[0].geometry
         );
 
-        // TODO: Group by angle of each face, and then apply a random mesh on each group
         var faces = geo.faces;
-        var group1 = [];
-        var group2 = [];
+        var hFaces = [];
+        var vFaces = [];
+        var xAxis = new THREE.Vector3(1, 0, 0);
 
         for (var i = 0; i < faces.length; i++) {
-          if (
-            group1.length === 0 ||
-            group1[0].normal.angleTo(faces[i].normal)
-          ) {
-            group1.push(faces[i]);
+          if (xAxis.angleTo(faces[i].normal) < 1) {
+            // Account for 1 radian as delta
+            vFaces.push(faces[i]);
           } else {
-            group2.push(faces[i]);
+            hFaces.push(faces[i]);
           }
         }
 
-        var [hFaces, vFaces] =
-          group1.length > group2.length ? [group1, group2] : [group2, group1];
-
-        var hMaterial = new THREE.MeshPhongMaterial({ color: '#b3c7e4' });
-        //var vMaterial = new THREE.MeshPhongMaterial({ color: '#982377' });
+        var hMaterialBench = new THREE.MeshPhongMaterial({ color: '#b3c7e4' });
+        var hMaterialFloor = new THREE.MeshPhongMaterial({ color: '#ee861b' });
+        var vMaterial = new THREE.MeshPhongMaterial({ color: '#000000' });
 
         // @ts-ignore
-        object.children[0].material.push(hMaterial);
+        object.children[0].material.push(hMaterialBench);
         // @ts-ignore
-        //object.children[0].material.push(vMaterial);
+        object.children[0].material.push(hMaterialFloor);
+        //@ts-ignore
+        object.children[0].material.push(vMaterial);
 
-        var hIndex = materialCount;
-        //var vIndex = materialCount + 1;
+        console.log(hFaces, vFaces, faces);
+
+        var hBenchIndex = materialCount;
+        var hFloorIndex = materialCount + 1;
+        var vIndex = materialCount + 2;
+
+        let maxZ = 0;
+        let minZ = Infinity;
+        (function () {
+          // Find the tallest point in terms of z coordinate so that we estimate height of all horizontal
+          // points
+
+          geo.vertices.forEach((vertex) => {
+            if (vertex.z > maxZ) {
+              maxZ = vertex.z;
+            } else if (vertex.z < minZ) {
+              minZ = vertex.z;
+            }
+          });
+
+          return maxZ;
+        })();
+
+        console.log(maxZ);
 
         for (var i = 0; i < hFaces.length; i++) {
-          hFaces[i].materialIndex = hIndex;
+          var face = hFaces[i];
+          // Get corresponding vertices of face
+          var v1 = geo.vertices[face.a];
+          var v2 = geo.vertices[face.b];
+          var v3 = geo.vertices[face.c];
+
+          // Calculare avg z
+          var averageZ = (v1.z + v2.z + v3.z) / 3;
+
+          if (Math.abs(maxZ - averageZ) > Math.abs(averageZ - minZ)) {
+            // If average z is closer to maxZ than 0, group it with bench points
+            face.materialIndex = hBenchIndex;
+          } else {
+            face.materialIndex = hFloorIndex;
+          }
         }
 
-        // for (var i = 0; i < vFaces.length; i++) {
-        //   vFaces[i].materialIndex = vIndex;
-        // }
+        for (var i = 0; i < vFaces.length; i++) {
+          vFaces[i].materialIndex = vIndex;
+        }
 
         hFaces.concat(vFaces);
         geo.faces = hFaces;
