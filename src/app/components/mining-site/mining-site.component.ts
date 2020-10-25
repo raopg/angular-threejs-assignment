@@ -97,8 +97,8 @@ export class MiningSiteComponent implements OnInit {
         }
 
         // New textures for bench, floor and vertical points
-        var hMaterialBench = new THREE.MeshPhongMaterial({ color: '#b3c7e4' });
-        var hMaterialFloor = new THREE.MeshPhongMaterial({ color: '#ee861b' });
+        var hMaterialBench = new THREE.MeshPhongMaterial({ color: '#F7F7F7' });
+        var hMaterialFloor = new THREE.MeshPhongMaterial({ color: '#808080' });
         var vMaterial = new THREE.MeshPhongMaterial({ color: '#000000' });
 
         // @ts-ignore
