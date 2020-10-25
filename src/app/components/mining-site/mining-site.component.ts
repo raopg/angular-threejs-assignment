@@ -64,16 +64,21 @@ export class MiningSiteComponent implements OnInit {
     const mtlLoader = new MTLLoader();
     mtlLoader.setPath(this.assetPath);
     mtlLoader.load(this.mtlFile, (materials) => {
+      // Pre-load materials and add it to the object loader
       materials.preload();
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
       objLoader.setPath(this.assetPath);
-      objLoader.load(this.objFile, (object) => {
-        const materialCount = 7;
 
+      objLoader.load(this.objFile, (object) => {
+        // Hard coded, this is the number of texture files we have
+        const materialCount = 7;
+        const mesh = object.children[0]; // Only one mesh
+
+        // Get a Geometry object for Face3 and Vector3 level calculations
         const geo = new THREE.Geometry().fromBufferGeometry(
           // @ts-ignore
-          object.children[0].geometry
+          mesh.geometry
         );
 
         var faces = geo.faces;
@@ -82,6 +87,7 @@ export class MiningSiteComponent implements OnInit {
         var xAxis = new THREE.Vector3(1, 0, 0);
 
         for (var i = 0; i < faces.length; i++) {
+          // Check angle between face's normal vector and x-axis
           if (xAxis.angleTo(faces[i].normal) < 1) {
             // Account for 1 radian as delta
             vFaces.push(faces[i]);
@@ -90,19 +96,19 @@ export class MiningSiteComponent implements OnInit {
           }
         }
 
+        // New textures for bench, floor and vertical points
         var hMaterialBench = new THREE.MeshPhongMaterial({ color: '#b3c7e4' });
         var hMaterialFloor = new THREE.MeshPhongMaterial({ color: '#ee861b' });
         var vMaterial = new THREE.MeshPhongMaterial({ color: '#000000' });
 
         // @ts-ignore
-        object.children[0].material.push(hMaterialBench);
+        mesh.material.push(hMaterialBench);
         // @ts-ignore
-        object.children[0].material.push(hMaterialFloor);
+        mesh.material.push(hMaterialFloor);
         //@ts-ignore
-        object.children[0].material.push(vMaterial);
+        mesh.material.push(vMaterial);
 
-        console.log(hFaces, vFaces, faces);
-
+        // Set up indices for assignment to different face3 objects
         var hBenchIndex = materialCount;
         var hFloorIndex = materialCount + 1;
         var vIndex = materialCount + 2;
@@ -110,8 +116,9 @@ export class MiningSiteComponent implements OnInit {
         let maxZ = 0;
         let minZ = Infinity;
         (function () {
-          // Find the tallest point in terms of z coordinate so that we estimate height of all horizontal
-          // points
+          // Find the tallest and shortest point
+          // in terms of z coordinate so that we can estimate height of all horizontal
+          // points.
 
           geo.vertices.forEach((vertex) => {
             if (vertex.z > maxZ) {
@@ -120,12 +127,9 @@ export class MiningSiteComponent implements OnInit {
               minZ = vertex.z;
             }
           });
-
-          return maxZ;
         })();
 
-        console.log(maxZ);
-
+        // Set horizontal vectors with correct color
         for (var i = 0; i < hFaces.length; i++) {
           var face = hFaces[i];
           // Get corresponding vertices of face
@@ -137,13 +141,13 @@ export class MiningSiteComponent implements OnInit {
           var averageZ = (v1.z + v2.z + v3.z) / 3;
 
           if (Math.abs(maxZ - averageZ) > Math.abs(averageZ - minZ)) {
-            // If average z is closer to maxZ than 0, group it with bench points
+            // If average z is closer to maxZ than minZ, group it with bench points
             face.materialIndex = hBenchIndex;
           } else {
             face.materialIndex = hFloorIndex;
           }
         }
-
+        // Set vertical faces to the new vertical material
         for (var i = 0; i < vFaces.length; i++) {
           vFaces[i].materialIndex = vIndex;
         }
@@ -152,9 +156,8 @@ export class MiningSiteComponent implements OnInit {
         geo.faces = hFaces;
 
         // @ts-ignore
-        object.children[0].geometry = new THREE.BufferGeometry().fromGeometry(
-          geo
-        );
+        // Convert Geometry obj back into BufferGeometry
+        mesh.geometry = new THREE.BufferGeometry().fromGeometry(geo);
 
         scene.add(object);
       });
