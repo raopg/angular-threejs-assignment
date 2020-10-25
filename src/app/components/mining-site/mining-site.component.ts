@@ -69,14 +69,58 @@ export class MiningSiteComponent implements OnInit {
       objLoader.setMaterials(materials);
       objLoader.setPath(this.assetPath);
       objLoader.load(this.objFile, (object) => {
+        const materialCount = 7;
+
         const geo = new THREE.Geometry().fromBufferGeometry(
           // @ts-ignore
           object.children[0].geometry
         );
 
         // TODO: Group by angle of each face, and then apply a random mesh on each group
+        var faces = geo.faces;
+        var group1 = [];
+        var group2 = [];
 
-        console.log(geo);
+        for (var i = 0; i < faces.length; i++) {
+          if (
+            group1.length === 0 ||
+            group1[0].normal.angleTo(faces[i].normal)
+          ) {
+            group1.push(faces[i]);
+          } else {
+            group2.push(faces[i]);
+          }
+        }
+
+        var [hFaces, vFaces] =
+          group1.length > group2.length ? [group1, group2] : [group2, group1];
+
+        var hMaterial = new THREE.MeshPhongMaterial({ color: '#b3c7e4' });
+        //var vMaterial = new THREE.MeshPhongMaterial({ color: '#982377' });
+
+        // @ts-ignore
+        object.children[0].material.push(hMaterial);
+        // @ts-ignore
+        //object.children[0].material.push(vMaterial);
+
+        var hIndex = materialCount;
+        //var vIndex = materialCount + 1;
+
+        for (var i = 0; i < hFaces.length; i++) {
+          hFaces[i].materialIndex = hIndex;
+        }
+
+        // for (var i = 0; i < vFaces.length; i++) {
+        //   vFaces[i].materialIndex = vIndex;
+        // }
+
+        hFaces.concat(vFaces);
+        geo.faces = hFaces;
+
+        // @ts-ignore
+        object.children[0].geometry = new THREE.BufferGeometry().fromGeometry(
+          geo
+        );
 
         scene.add(object);
       });
