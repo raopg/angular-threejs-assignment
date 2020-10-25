@@ -73,7 +73,25 @@ export class MiningSiteComponent implements OnInit {
         //Create geometry object
         const geo = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
 
-        console.log(geo.faces);
+        geo.mergeVertices(); // Remove duplicates
+
+        geo.computeFaceNormals();
+
+        //console.log(geo.faces);
+
+        var group1 = [];
+        var group2 = [];
+        geo.vertices.forEach((vertex) => {
+          if (group1.length === 0 || group1[0].angleTo(vertex) < 0.1) {
+            group1.push(vertex);
+          } else {
+            group2.push(vertex);
+          }
+        });
+
+        console.log(group2);
+
+        geo.verticesNeedUpdate = true;
 
         scene.add(object);
       });
