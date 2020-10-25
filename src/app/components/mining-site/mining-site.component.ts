@@ -39,6 +39,8 @@ export class MiningSiteComponent implements OnInit {
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
     controls.enableZoom = true;
+    controls.enableRotate = true;
+    controls.enablePan = true;
 
     //Enable lighting
     var keyLight = new THREE.DirectionalLight(
