@@ -10,6 +10,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
   styleUrls: ['./mining-site.component.scss'],
 })
 export class MiningSiteComponent implements OnInit {
+  objFile: string = 'geomodel.obj';
+  mtlFile: string = 'geomodel.mtl';
+  assetPath: string = '../../../assets/threejs-assets/';
+
   constructor() {}
 
   ngOnInit(): void {
@@ -56,42 +60,23 @@ export class MiningSiteComponent implements OnInit {
     scene.add(fillLight);
     scene.add(backLight);
 
-    // TODO: Load textures
-
     // Load material and obj
     const mtlLoader = new MTLLoader();
-    mtlLoader.setPath('../../../assets/threejs-assets/');
-    mtlLoader.load('geomodel.mtl', (materials) => {
+    mtlLoader.setPath(this.assetPath);
+    mtlLoader.load(this.mtlFile, (materials) => {
       materials.preload();
       const objLoader = new OBJLoader();
       objLoader.setMaterials(materials);
-      objLoader.setPath('../../../assets/threejs-assets/');
-      objLoader.load('geomodel.obj', (object) => {
-        // Retrieve the mesh
-        const mesh = object.children[0];
-        // @ts-ignore-next-line
-        //Create geometry object
-        const geo = new THREE.Geometry().fromBufferGeometry(mesh.geometry);
+      objLoader.setPath(this.assetPath);
+      objLoader.load(this.objFile, (object) => {
+        const geo = new THREE.Geometry().fromBufferGeometry(
+          // @ts-ignore
+          object.children[0].geometry
+        );
 
-        geo.mergeVertices(); // Remove duplicates
+        // TODO: Group by angle of each face, and then apply a random mesh on each group
 
-        geo.computeFaceNormals();
-
-        //console.log(geo.faces);
-
-        var group1 = [];
-        var group2 = [];
-        geo.vertices.forEach((vertex) => {
-          if (group1.length === 0 || group1[0].angleTo(vertex) < 0.1) {
-            group1.push(vertex);
-          } else {
-            group2.push(vertex);
-          }
-        });
-
-        console.log(group2);
-
-        geo.verticesNeedUpdate = true;
+        console.log(geo);
 
         scene.add(object);
       });
